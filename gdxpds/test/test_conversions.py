@@ -44,17 +44,16 @@ from gdxpds.test.test_session import manage_rundir
 
 import pandas as pds
 
+
 def roundtrip_one_gdx(filename,dirname):
     # load gdx, make map of symbols and number of records
     gdx_file = os.path.join(base_dir,filename)
     with gdxpds.gdx.GdxFile() as gdx:
         gdx.read(gdx_file)
         num_records = {}
-        total_records = 0
         for symbol in gdx:
             num_records[symbol.name] = symbol.num_records
-            total_records += num_records[symbol.name]
-        assert total_records > 0
+    assert sum(num_records.values()) > 0
 
     # call command-line interface to transform gdx to csv
     out_dir = os.path.join(run_dir, dirname, os.path.splitext(filename)[0])
