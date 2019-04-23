@@ -803,10 +803,11 @@ class GdxSymbol(object):
 
         data = []
         ret, records = gdxcc.gdxDataReadStrStart(self.file.H,self.index)
+        vc = self.value_cols
         for i in range(records):
             ret, elements, values, afdim = gdxcc.gdxDataReadStr(self.file.H)
             # make sure we pick value columns up correctly
-            data.append(elements + [values[col_ind] for col_name, col_ind in self.value_cols])
+            data.append(elements + [values[col_ind] for col_name, col_ind in vc])
             if self.data_type == GamsDataType.Set:
                 data[-1][-1] = True
                 # gdxdict called gdxGetElemText here, but I do not currently see value in doing that
