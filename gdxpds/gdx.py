@@ -856,10 +856,14 @@ class GdxSymbol(object):
         values = gdxcc.doubleArray(gdxcc.GMS_VAL_MAX)
         # make sure index is clean -- needed for merging in convert_np_to_gdx_svs
         self.dataframe = self.dataframe.reset_index(drop=True)
+        # This loop sometimes slow, preload some properties
+        handle = self.file.H
+        vc = self.value_cols
+        nd = self.num_dims
         for row in special.convert_np_to_gdx_svs(self.dataframe, self.num_dims).itertuples(index=False, name=None):
-            dims = [str(x) for x in row[:self.num_dims]]
-            vals = row[self.num_dims:]
-            for col_name, col_ind in self.value_cols:
+            dims = [str(x) for x in row[:nd]]
+            vals = row[nd:]
+            for col_name, col_ind in vc:
                 try:
                     values[col_ind] = float(vals[col_ind])
                 except ValueError:
@@ -867,6 +871,6 @@ class GdxSymbol(object):
                     values[col_ind] = 0.0
                 except:
                     raise Error("Unable to set element {} from {}.".format(col_ind,vals))
-            gdxcc.gdxDataWriteStr(self.file.H,dims,values)
-        gdxcc.gdxDataWriteDone(self.file.H)
+            gdxcc.gdxDataWriteStr(handle,dims,values)
+        gdxcc.gdxDataWriteDone(handle)
         return
