@@ -860,11 +860,12 @@ class GdxSymbol(object):
             dims = [str(x) for x in row[:self.num_dims]]
             vals = row[self.num_dims:]
             for col_name, col_ind in self.value_cols:
-                values[col_ind] = float(0.0)
                 try:
-                    if isinstance(vals[col_ind],Number):
-                        values[col_ind] = float(vals[col_ind])
-                except: 
+                    values[col_ind] = float(vals[col_ind])
+                except ValueError:
+                    # cbool (Y/N for sets) can't be converted to float
+                    values[col_ind] = 0.0
+                except:
                     raise Error("Unable to set element {} from {}.".format(col_ind,vals))
             gdxcc.gdxDataWriteStr(self.file.H,dims,values)
         gdxcc.gdxDataWriteDone(self.file.H)
