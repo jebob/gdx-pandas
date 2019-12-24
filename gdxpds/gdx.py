@@ -318,13 +318,18 @@ class GdxFile(MutableSequence, NeedsGamsDir):
             return False
 
     def keys(self):
-        return [symbol.name for symbol in self]
+        return (symbol.name for symbol in self)
 
     def _name_key(self,key):
-        name_key = key
-        if not isinstance(key,int):
-            return self.keys().index(key)
-        return name_key
+        """Converts possibly-string keys to integers."""
+        if isinstance(key, int):
+            # Key looks fine
+            return key
+        elif isinstance(key, str):
+            # Key is a string, convert to an integer
+            return list(self.keys()).index(key)
+        else:
+            raise TypeError("gdxpds only supports string or int-based indexing")
 
     def _check_insert_setitem(self,key,value):
         if not isinstance(value,GdxSymbol):
