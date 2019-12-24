@@ -129,14 +129,6 @@ def convert_np_to_gdx_svs(df, num_dims):
         their GDX equivalents
     """
 
-    # converts a single value; NANs are assumed already handled
-    def convert_approx_eps(value):
-        # eps values are not always caught by ==, use is_np_eps which applies
-        # a tolerance
-        if is_np_eps(value):
-            return SPECIAL_VALUES[4]
-        return value
-
     # get a clean copy of df
     try:
         tmp = copy.deepcopy(df)
@@ -146,7 +138,10 @@ def convert_np_to_gdx_svs(df, num_dims):
 
     # fillna and apply map to value columns, then merge with dimensional columns
     try:
-        values = tmp.iloc[:, num_dims:].replace(NP_TO_GDX_SVS, value=None).applymap(convert_approx_eps)
+        values = tmp.iloc[:, num_dims:].replace(NP_TO_GDX_SVS, value=None).copy()
+        # pandas sometimes mangles eps, so treat all small numbers as eps
+        # see is_np_eps
+        values[(0 < values) & (values < 2 * NUMPY_SPECIAL_VALUES[-1])] = SPECIAL_VALUES[4]
         tmp = (tmp.iloc[:, :num_dims]).merge(values, left_index=True, right_index=True)
     except:
         logger.error("Unable to convert numpy special values to GDX special values." + \
