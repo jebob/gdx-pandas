@@ -37,16 +37,17 @@
 
 import logging
 import os
-import subprocess as subp
 import re
+import subprocess as subp
 
 logger = logging.getLogger(__name__)
 
 
-class Error(Exception): 
+class Error(Exception):
     """
     Base class for all Exceptions raised by this package.
     """
+
 
 class GamsDirFinder(object):
     """
@@ -63,16 +64,16 @@ class GamsDirFinder(object):
     """
     gams_dir_cache = None
 
-    def __init__(self,gams_dir=None):
+    def __init__(self, gams_dir=None):
         self.gams_dir = gams_dir
-        
+
     @property
     def gams_dir(self):
         """The GAMS directory on this system."""
         if self.__gams_dir is None:
             raise RuntimeError("Unable to locate your GAMS directory.")
         return self.__gams_dir
-        
+
     @gams_dir.setter
     def gams_dir(self, value):
         self.__gams_dir = None
@@ -80,18 +81,18 @@ class GamsDirFinder(object):
             self.__gams_dir = self.__clean_gams_dir(value)
         if self.__gams_dir is None:
             self.__gams_dir = self.__find_gams()
-            
-    def __clean_gams_dir(self,value):
+
+    def __clean_gams_dir(self, value):
         """
         Cleans up the path string.
         """
-        assert(isinstance(value, str))
+        assert (isinstance(value, str))
         ret = os.path.realpath(value)
         if not os.path.exists(ret):
             return None
-        ret = re.sub('\\\\','/',ret)
+        ret = re.sub('\\\\', '/', ret)
         return ret
-        
+
     def __find_gams(self):
         """
         For all systems, the first place we examine is the GAMS_DIR environment
@@ -149,7 +150,7 @@ class GamsDirFinder(object):
                 ret = os.path.dirname(subp.check_output(['which', 'gams'])).decode()
             except:
                 ret = None
-                
+
         if ret is not None:
             ret = self.__clean_gams_dir(ret)
             GamsDirFinder.gams_dir_cache = ret
@@ -157,9 +158,10 @@ class GamsDirFinder(object):
         if ret is None:
             logger.debug("Did not find GAMS directory. Using cached value {}.".format(self.gams_dir_cache))
             ret = GamsDirFinder.gams_dir_cache
-            
+
         return ret
-        
+
+
 class NeedsGamsDir(object):
     """
     Mix-in class that asserts that a GAMS directory is needed and provides the
@@ -171,14 +173,14 @@ class NeedsGamsDir(object):
         The GAMS directory whose value has either been directly set or has been 
         found using the GamsDirFinder class.
     """
-    def __init__(self,gams_dir=None):
+
+    def __init__(self, gams_dir=None):
         self.gams_dir = gams_dir
-        
+
     @property
     def gams_dir(self):
         return self.__gams_dir
-        
+
     @gams_dir.setter
     def gams_dir(self, value):
-        self.__gams_dir = GamsDirFinder(value).gams_dir    
-
+        self.__gams_dir = GamsDirFinder(value).gams_dir

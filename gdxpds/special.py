@@ -41,7 +41,6 @@ import logging
 import gdxcc
 import numpy as np
 
-
 # List of numpy special values in gdxGetSpecialValues order
 #                      1E300,  2E300,  3E300,   4E300,               5E300
 NUMPY_SPECIAL_VALUES = [None, np.nan, np.inf, -np.inf, np.finfo(float).eps]
@@ -196,7 +195,7 @@ def pd_val_equal(val1, val2):
     return pd_isnan(val1) and pd_isnan(val2) or val1 == val2
 
 
-def gdx_isnan(val,gdxf):
+def gdx_isnan(val, gdxf):
     """
     Utility function for equating the GDX special values that map to None or NaN
     (which are indistinguishable in pandas).
@@ -217,7 +216,7 @@ def gdx_isnan(val,gdxf):
     return val in [SPECIAL_VALUES[0], SPECIAL_VALUES[1]]
 
 
-def gdx_val_equal(val1,val2,gdxf):
+def gdx_val_equal(val1, val2, gdxf):
     """
     Utility function used to test special value conversions.
 

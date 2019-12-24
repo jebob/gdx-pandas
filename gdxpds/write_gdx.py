@@ -36,21 +36,21 @@
 # [/LICENSE]
 
 import logging
-from numbers import Number
 
-# gdxpds needs to be imported before pandas to try to avoid library conflict on 
+# gdxpds needs to be imported before pandas to try to avoid library conflict on
 # Linux that causes a segmentation fault.
+from gdxpds.gdx import GdxFile, GdxSymbol
 from gdxpds.tools import Error
-from gdxpds.gdx import GdxFile, GdxSymbol, GAMS_VALUE_COLS_MAP, GamsDataType, infer_data_type
 
 import pandas as pds
 
 logger = logging.getLogger(__name__)
 
+
 class Translator(object):
-    def __init__(self,dataframes,gams_dir=None):
+    def __init__(self, dataframes, gams_dir=None):
         self.dataframes = dataframes
-        self.__gams_dir=None
+        self.__gams_dir = None
 
     def __exit__(self, *args):
         if self.__gdx is not None:
@@ -65,13 +65,14 @@ class Translator(object):
         return self.__dataframes
 
     @dataframes.setter
-    def dataframes(self,value):
+    def dataframes(self, value):
         err_msg = "Expecting map of name, pandas.DataFrame pairs."
         try:
             for symbol_name, df in value.items():
                 if not isinstance(symbol_name, str): raise Error(err_msg)
                 if not isinstance(df, pds.DataFrame): raise Error(err_msg)
-        except AttributeError: raise Error(err_msg)
+        except AttributeError:
+            raise Error(err_msg)
         self.__dataframes = value
         self.__gdx = None
 
@@ -91,16 +92,16 @@ class Translator(object):
                 self.__add_symbol_to_gdx(symbol_name, df)
         return self.__gdx
 
-    def save_gdx(self,path,gams_dir=None):
+    def save_gdx(self, path, gams_dir=None):
         if gams_dir is not None:
-            self.__gams_dir=gams_dir
+            self.__gams_dir = gams_dir
         self.gdx.write(path)
 
     def __add_symbol_to_gdx(self, symbol_name, df):
-        self.__gdx.append(GdxSymbol.from_df(symbol_name,df))
+        self.__gdx.append(GdxSymbol.from_df(symbol_name, df))
 
 
-def to_gdx(dataframes,path=None,gams_dir=None):
+def to_gdx(dataframes, path=None, gams_dir=None):
     """
     Parameters:
       - dataframes (map of pandas.DataFrame): symbol name to pandas.DataFrame
@@ -113,8 +114,7 @@ def to_gdx(dataframes,path=None,gams_dir=None):
 
     Returns a gdxdict.gdxdict, which is defined in [py-gdx](https://github.com/geoffleyland/py-gdx).
     """
-    translator = Translator(dataframes,gams_dir=gams_dir)
+    translator = Translator(dataframes, gams_dir=gams_dir)
     if path is not None:
         translator.save_gdx(path)
     return translator.gdx
-
