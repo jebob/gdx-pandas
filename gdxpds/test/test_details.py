@@ -190,7 +190,7 @@ def test_unnamed_dimensions(manage_rundir):
     with gdxpds.gdx.GdxFile() as gdx:
         # Set
         gdx.append(gdxpds.gdx.GdxSymbol('star_set',gdxpds.gdx.GamsDataType.Set,dims=4))
-        gdx[-1].dataframe[cols] = some_entries
+        gdx[-1].dataframe = some_entries
         # Parmeter
         a_param = copy.deepcopy(some_entries)
         a_param['Value'] = [1.0,2.0,3.0,4.0]
@@ -245,26 +245,17 @@ def test_setting_dataframes(manage_rundir):
         # start with WAYS THAT WORK:
         # 0 dims
         #     full dataframe
-        gdx.append(gdxpds.gdx.GdxSymbol('sym_1',gdxpds.gdx.GamsDataType.Parameter))
-        gdx[-1].dataframe = pds.DataFrame([[2.0]])
+        gdx.append(gdxpds.gdx.GdxSymbol('sym_1', gdxpds.gdx.GamsDataType.Parameter, dataframe=pds.DataFrame([[2.0]])))
         assert list(gdx[-1].dataframe.columns) == ['Value']
         #     edit initialized dataframe - Parameter
-        gdx.append(gdxpds.gdx.GdxSymbol('sym_2',gdxpds.gdx.GamsDataType.Parameter))
-        n = len(gdx[-1].dataframe.columns)
-        gdx[-1].dataframe['Value'] = [5.0] # list is required to specify number of rows to make
-        assert n == len(gdx[-1].dataframe.columns)
+        gdx.append(
+            gdxpds.gdx.GdxSymbol('sym_2', gdxpds.gdx.GamsDataType.Parameter, dataframe=pds.DataFrame({'Value': [5.0]}))
+        )
         #     list of lists
-        gdx.append(gdxpds.gdx.GdxSymbol('sym_3',gdxpds.gdx.GamsDataType.Variable))
-        values = [3.0]
-        for value_col_name in gdx[-1].value_col_names:
-            if value_col_name == 'Level':
-                continue
-            values.append(gdx[-1].get_value_col_default(value_col_name))
-        gdx[-1].dataframe = [values]
-        #     reset with empty list
-        gdx.append(gdxpds.gdx.GdxSymbol('sym_4',gdxpds.gdx.GamsDataType.Parameter))
-        gdx[-1].dataframe = pds.DataFrame([[1.0]])
-        gdx[-1].dataframe = []
+        df = {key: [default] for key, default in gdxpds.gdx.GAMS_VALUE_DEFAULTS.items()}
+        gdx.append(gdxpds.gdx.GdxSymbol('sym_3',gdxpds.gdx.GamsDataType.Variable, dataframe=df))
+        #     empty list
+        gdx.append(gdxpds.gdx.GdxSymbol('sym_4',gdxpds.gdx.GamsDataType.Parameter, dataframe=pds.DataFrame({'Value': []})))
         assert gdx[-1].num_records == 0
 
         # > 0 dims - GdxSymbol initialized with dims=0
@@ -399,6 +390,7 @@ def test_setting_dataframes(manage_rundir):
                    dims=['g','t']))
         with pytest.raises(Exception) as e_info:
             gdx[-1].dims = ['g','t','d']
+        gdx[-1].dataframe = []  # Assign blank so we can write out
         #     dataframe of different number of dims
         gdx.append(gdxpds.gdx.GdxSymbol('sym_20',gdxpds.gdx.GamsDataType.Variable,
             dims=['d','t']))
@@ -419,6 +411,7 @@ def test_setting_dataframes(manage_rundir):
             gdx[-1].dataframe = pds.DataFrame([['1',6.0],
                                               ['2',7.0],
                                               ['3',-12.0]])
+        gdx[-1].dataframe = []  # Assign blank so we can write out
         #     list of lists of varying widths
         gdx.append(gdxpds.gdx.GdxSymbol('sym_22',gdxpds.gdx.GamsDataType.Parameter,
             dims=3))
@@ -432,6 +425,7 @@ def test_setting_dataframes(manage_rundir):
         with pytest.raises(Exception) as e_info:
             gdx[-1].dataframe = [['u1','PV','c0','1',2.5],
                                  ['u1','PV','c0','2',-30.0]]
+        gdx[-1].dataframe = []  # Assign blank so we can write out
 
         gdx.write(os.path.join(outdir,'dataframe_set_tests.gdx'))
     with gdxpds.gdx.GdxFile(lazy_load=False) as gdx:
