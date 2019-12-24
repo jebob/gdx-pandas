@@ -836,9 +836,6 @@ class GdxSymbol(object):
         if not self.loaded:
             raise Error("Cannot write unloaded symbol {}.".format(repr(self.name)))
 
-        if self.data_type == GamsDataType.Set:
-            self._fixup_set_value()
-
         if index is not None:
             self.index = index
 
@@ -850,11 +847,12 @@ class GdxSymbol(object):
             return
 
         # write the data
-        userinfo = 0
         if self.variable_type is not None:
             userinfo = self.variable_type.value
         elif self.equation_type is not None:
             userinfo = self.equation_type.value
+        else:
+            userinfo = 0
         if not gdxcc.gdxDataWriteStrStart(self.file.H,
                                           self.name,
                                           self.description,
