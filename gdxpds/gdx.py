@@ -46,7 +46,7 @@ from __future__ import absolute_import, print_function
 from builtins import super
 
 import atexit
-from collections import defaultdict, OrderedDict
+from collections import defaultdict
 
 try:
     from collections.abc import MutableSequence
@@ -150,7 +150,7 @@ class GdxFile(MutableSequence, NeedsGamsDir):
         self.version = None
         self.producer = None  # What program wrote the GDX file
         self.filename = None
-        self._symbols = OrderedDict()
+        self._symbols = list()
 
         NeedsGamsDir.__init__(self,gams_dir=gams_dir)
         self.H = self._create_gdx_object()
@@ -285,7 +285,6 @@ class GdxFile(MutableSequence, NeedsGamsDir):
         value.file = self
         if key < len(self):
             self._symbols[self._name_key(key)] = value
-            self._fixup_name_keys()
             return
         assert key == len(self)
         self._symbols[value.name] = value
@@ -301,15 +300,12 @@ class GdxFile(MutableSequence, NeedsGamsDir):
     def insert(self,key,value):
         self._check_insert_setitem(key, value)
         value.file = self
-        if key == len(self) and value.name not in self._symbols:
-            # We can safely append the symbol. This is fast (O(log(n)) complexity)
-            self._symbols[value.name] = value
+        if value.name in self.keys():
+            # Overwriting existing items
+            self[value.name] = value
         else:
-            # Need to insert inside the sequence. This is slow (O(n) complexity)
-            data = [(symbol.name, symbol) for symbol in self]
-            data.insert(key,(value.name,value))
-            self._symbols = OrderedDict(data)
-        return
+            # Standard insert
+            self._symbols.insert(key,value)
 
     def __contains__(self,key):
         """
@@ -326,8 +322,8 @@ class GdxFile(MutableSequence, NeedsGamsDir):
 
     def _name_key(self,key):
         name_key = key
-        if isinstance(key,int):
-            name_key = list(self._symbols.keys())[key]
+        if not isinstance(key,int):
+            return self.keys().index(key)
         return name_key
 
     def _check_insert_setitem(self,key,value):
@@ -338,10 +334,6 @@ class GdxFile(MutableSequence, NeedsGamsDir):
         if key > len(self):
             raise Error("Invalid key, {}".format(key))
         return
-
-    def _fixup_name_keys(self):
-        self._symbols = OrderedDict([(symbol.name, symbol) for cur_key, symbol in self._symbols])
-        return        
 
     def _create_gdx_object(self):
         H = gdxcc.new_gdxHandle_tp()
