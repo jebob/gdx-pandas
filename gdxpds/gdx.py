@@ -59,14 +59,6 @@ from enum import Enum
 import logging
 from numbers import Number
 
-# try to import gdx loading utility
-HAVE_GDX2PY = False
-try:
-    # special Windows dll for optimized loading of GAMS parameters
-    import gdx2py
-    HAVE_GDX2PY = True
-except ImportError: pass
-
 # gdxpds needs to be imported before pandas to try to avoid library conflict on 
 # Linux that causes a segmentation fault.
 from gdxpds import Error
@@ -819,11 +811,6 @@ class GdxSymbol(object):
             raise Error("Cannot load {} because there is no file pointer".format(repr(self)))
         if not self.index:
             raise Error("Cannot load {} because there is no symbol index".format(repr(self)))
-
-        if self.data_type == GamsDataType.Parameter and HAVE_GDX2PY:
-            self.dataframe = gdx2py.par2list(self.file.filename,self.name) 
-            self._loaded = True
-            return
 
         ret, records = gdxcc.gdxDataReadStrStart(self.file.H,self.index)
 
