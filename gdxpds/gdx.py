@@ -455,7 +455,6 @@ class GdxSymbol(object):
                  description='',variable_type=None,equation_type=None): 
         self._name = name
         self.description = description
-        self._loaded = False
         self._data_type = GamsDataType(data_type)
         self._variable_type = None; self.variable_type = variable_type
         self._equation_type = None; self.equation_type = equation_type
@@ -509,7 +508,6 @@ class GdxSymbol(object):
         else:
             # universal set
             assert index == 0
-            symbol._loaded = True
 
         return symbol
 
