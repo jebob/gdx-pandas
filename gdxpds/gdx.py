@@ -283,12 +283,12 @@ class GdxFile(MutableSequence, NeedsGamsDir):
     def __setitem__(self,key,value):
         self._check_insert_setitem(key, value)
         value.file = self
-        if key < len(self):
-            self._symbols[self._name_key(key)] = value
-            return
-        assert key == len(self)
-        self._symbols[value.name] = value
-        return
+        if value.name in self.keys():
+            # Overwriting existing items
+            self[value.name] = value
+        else:
+            # Standard setitem
+            self._symbols[key] = value
 
     def __delitem__(self,key):
         del self._symbols[self._name_key(key)]
