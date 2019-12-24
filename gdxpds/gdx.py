@@ -462,8 +462,8 @@ class GdxSymbol(object):
         self._dataframe = None; self._dims = None
         self.dims = dims       
         assert self._dataframe is not None
-        self._file = file
-        self._index = index        
+        self.file = file
+        self.index = index
 
         if self.file is not None:
             # reading from file
@@ -612,14 +612,6 @@ class GdxSymbol(object):
                 assert value_col == GamsValueType.Upper
                 return ub_default
         return GAMS_VALUE_DEFAULTS[value_col] 
-
-    @property
-    def file(self):
-        return self._file
-
-    @property
-    def index(self):
-        return self._index
 
     @property
     def loaded(self):
@@ -830,7 +822,7 @@ class GdxSymbol(object):
             self._fixup_set_value()
 
         if index is not None:
-            self._index = index
+            self.index = index
 
         if self.index == 0:
             # universal set
