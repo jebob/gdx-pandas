@@ -684,6 +684,8 @@ class GdxSymbol(object):
 
     @property
     def dataframe(self):
+        if not self.loaded:
+            self.load()
         return self._dataframe
 
     @dataframe.setter

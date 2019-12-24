@@ -149,7 +149,7 @@ def test_from_scratch_sets(manage_rundir):
         gdx.append(gdxpds.gdx.GdxSymbol('my_other_set', gdxpds.gdx.GamsDataType.Set, dims=['u']))
         data = pds.DataFrame([['u' + str(i)] for i in range(1, 11)], columns=['u'])
         data['Value'] = True
-        gdx[-1].dataframe = gdx[-1].dataframe.append(data)
+        gdx[-1].dataframe = data
         gdx.write(os.path.join(outdir, 'my_sets.gdx'))
     with gdxpds.gdx.GdxFile(lazy_load=False) as gdx:
         gdx.read(os.path.join(outdir, 'my_sets.gdx'))
@@ -331,7 +331,6 @@ def test_setting_dataframes(manage_rundir):
         #     reset with empty list
         gdx.append(gdxpds.gdx.GdxSymbol('sym_12', gdxpds.gdx.GamsDataType.Set,
                                         dims=2))
-        gdx[-1].dataframe = gdx[-1].dataframe.copy()
         gdx[-1].dataframe = []
         assert gdx[-1].num_dims == 2
         assert gdx[-1].dims == ['*'] * 2
