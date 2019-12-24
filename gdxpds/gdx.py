@@ -453,9 +453,9 @@ class GdxSymbol(object):
         self._name = name
         self.description = description
         self._data_type = GamsDataType(data_type)
-        self._variable_type = None;
+        self._variable_type = None
         self.variable_type = variable_type
-        self._equation_type = None;
+        self._equation_type = None
         self.equation_type = equation_type
         self.file = file
         self.index = index
@@ -464,7 +464,7 @@ class GdxSymbol(object):
         self._dataframe = None
         self._dims = None
         self._num_records = None
-        if (dataframe is not None):
+        if dataframe is not None:
             # Writing symbol
             if dims is not None or num_records is not None:
                 raise ValueError("Do not pass both 'dataframe' and 'dims'/'num_records'")
