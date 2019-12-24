@@ -147,18 +147,17 @@ class GdxFile(MutableSequence, NeedsGamsDir):
         Throws a GdxError if either of those operations fail.
         """
         self.lazy_load = lazy_load
-        self._version = None
-        self._producer = None
-        self._filename = None
+        self.version = None
+        self.producer = None  # What program wrote the GDX file
+        self.filename = None
         self._symbols = OrderedDict()
 
         NeedsGamsDir.__init__(self,gams_dir=gams_dir)
-        self._H = self._create_gdx_object()
+        self.H = self._create_gdx_object()
         self.universal_set = GdxSymbol('*',GamsDataType.Set,dims=1,file=None,index=0)
         self.universal_set._file = self
 
         atexit.register(self.cleanup)
-        return
 
     def cleanup(self):
         gdxcc.gdxFree(self.H)
@@ -193,31 +192,6 @@ class GdxFile(MutableSequence, NeedsGamsDir):
         return len(self) == 0
 
     @property
-    def H(self):
-        """
-        GDX object handle
-        """
-        return self._H
-
-    @property
-    def filename(self):
-        return self._filename
-
-    @property
-    def version(self):
-        """
-        GDX file version
-        """
-        return self._version
-
-    @property
-    def producer(self):
-        """
-        What program wrote the GDX file
-        """
-        return self._producer
-
-    @property
     def num_elements(self):
         return sum([symbol.num_records for symbol in self])
 
@@ -237,11 +211,11 @@ class GdxFile(MutableSequence, NeedsGamsDir):
         rc = gdxcc.gdxOpenRead(self.H,filename)
         if not rc[0]:
             raise GdxError(self.H,"Could not open '{}'".format(filename))
-        self._filename = filename
+        self.filename = filename
 
         # read in meta-data ...
         # ... for the file
-        ret, self._version, self._producer = gdxcc.gdxFileVersion(self.H)
+        ret, self.version, self.producer = gdxcc.gdxFileVersion(self.H)
         if ret != 1: 
             raise GdxError(self.H,"Could not get file version")
         ret, symbol_count, element_count = gdxcc.gdxSystemInfo(self.H)
@@ -273,7 +247,7 @@ class GdxFile(MutableSequence, NeedsGamsDir):
         ret = gdxcc.gdxOpenWrite(self.H,filename,"gdxpds")
         if not ret:
             raise GdxError(self.H,"Could not open {} for writing. Consider cloning this file (.clone()) before trying to write".format(repr(filename)))
-        self._filename = filename
+        self.filename = filename
         
         # write the universal set
         self.universal_set.write()
