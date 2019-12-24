@@ -47,7 +47,7 @@ logger = logging.getLogger(__name__)
 
 
 class Translator(object):
-    def __init__(self, gdx_file, gams_dir=None, lazy_load=False):
+    def __init__(self, gdx_file, gams_dir=None, lazy_load=True):
         self.__gdx = GdxFile(gams_dir=gams_dir, lazy_load=lazy_load)
         self.__gdx.read(gdx_file)
         self.__dataframes = None
