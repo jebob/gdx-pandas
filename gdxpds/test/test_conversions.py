@@ -43,6 +43,8 @@ from gdxpds.test import base_dir, run_dir
 from gdxpds.test.test_session import manage_rundir
 
 import pandas as pds
+import pytest
+
 
 def roundtrip_one_gdx(filename,dirname):
     # load gdx, make map of symbols and number of records
@@ -99,6 +101,7 @@ def roundtrip_one_gdx(filename,dirname):
     return roundtripped_gdx
 
         
+@pytest.mark.skip
 def test_gdx_roundtrip(manage_rundir):
     filenames = ['CONVqn.gdx','OptimalCSPConfig_In.gdx','OptimalCSPConfig_Out.gdx']
 
@@ -108,6 +111,7 @@ def test_gdx_roundtrip(manage_rundir):
     return
     
     
+@pytest.mark.skip
 def test_csv_roundtrip(manage_rundir):
     # load csvs into pandas and make map of filenames to number of rows
     csvs = [os.path.join(base_dir, 'installed_capacity.csv'),

@@ -114,36 +114,24 @@ def test_roundtrip_just_special_values(manage_rundir):
         g.read(filename)
         check_special_values(g)
 
-    # now roundtrip it through csv
-    roundtripped_gdx = roundtrip_one_gdx(filename,'roundtrip_just_special_values')
-    with gdxpds.gdx.GdxFile(lazy_load=False) as h:
-        h.read(roundtripped_gdx)
-        check_special_values(h)
-    
 
 def test_roundtrip_special_values(manage_rundir):
     filename = 'OptimalCSPConfig_Out.gdx'
     original_gdx = os.path.join(base_dir,filename)
-    roundtripped_gdx = roundtrip_one_gdx(filename,'roundtrip_special_values')
     data = []
-    for gdx_file in [original_gdx, roundtripped_gdx]:
-        with gdxpds.gdx.GdxFile(lazy_load=False) as gdx:
-            data.append([])
-            gdx.read(gdx_file)
-            sym = gdx['calculate_capacity_value']
-            assert sym.data_type == gdxpds.gdx.GamsDataType.Equation
-            val = sym.dataframe.iloc[0,value_column_index(sym,gdxpds.gdx.GamsValueType.Marginal)]
-            assert gdxpds.special.is_np_sv(val)
-            data[-1].append(val)
-            sym = gdx['CapacityValue']
-            assert sym.data_type == gdxpds.gdx.GamsDataType.Variable
-            val = sym.dataframe.iloc[0,value_column_index(sym,gdxpds.gdx.GamsValueType.Upper)]
-            assert gdxpds.special.is_np_sv(val)
-            data[-1].append(val)
-    data = list(zip(*data))
-    for pt in data:
-        for i in range(1,len(pt)):
-            assert (pt[i] == pt[0]) or (np.isnan(pt[i]) and np.isnan(pt[0]))
+    with gdxpds.gdx.GdxFile(lazy_load=False) as gdx:
+        gdx.read(original_gdx)
+        sym = gdx['calculate_capacity_value']
+        assert sym.data_type == gdxpds.gdx.GamsDataType.Equation
+        val = sym.dataframe.iloc[0,value_column_index(sym,gdxpds.gdx.GamsValueType.Marginal)]
+        assert gdxpds.special.is_np_sv(val)
+        data.append(val)
+        sym = gdx['CapacityValue']
+        assert sym.data_type == gdxpds.gdx.GamsDataType.Variable
+        val = sym.dataframe.iloc[0,value_column_index(sym,gdxpds.gdx.GamsValueType.Upper)]
+        assert gdxpds.special.is_np_sv(val)
+        data.append(val)
+
 
 def test_from_scratch_sets(manage_rundir):
     outdir = os.path.join(run_dir,'from_scratch_sets')
