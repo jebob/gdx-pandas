@@ -155,7 +155,7 @@ class GdxFile(MutableSequence, NeedsGamsDir):
         NeedsGamsDir.__init__(self,gams_dir=gams_dir)
         self.H = self._create_gdx_object()
         self.universal_set = GdxSymbol('*',GamsDataType.Set,dims=1,file=None,index=0)
-        self.universal_set._file = self
+        self.universal_set.file = self
 
         atexit.register(self.cleanup)
 
@@ -181,7 +181,7 @@ class GdxFile(MutableSequence, NeedsGamsDir):
         result = GdxFile(gams_dir=self.gams_dir,lazy_load=False)
         for symbol in self:
             result.append(symbol.clone())
-            result[-1]._file = result
+            result[-1].file = result
         return result
 
     @property
@@ -282,7 +282,7 @@ class GdxFile(MutableSequence, NeedsGamsDir):
 
     def __setitem__(self,key,value):
         self._check_insert_setitem(key, value)
-        value._file = self
+        value.file = self
         if key < len(self):
             self._symbols[self._name_key(key)] = value
             self._fixup_name_keys()
@@ -300,7 +300,7 @@ class GdxFile(MutableSequence, NeedsGamsDir):
 
     def insert(self,key,value):
         self._check_insert_setitem(key, value)
-        value._file = self
+        value.file = self
         if key == len(self) and value.name not in self._symbols:
             # We can safely append the symbol. This is fast (O(log(n)) complexity)
             self._symbols[value.name] = value
