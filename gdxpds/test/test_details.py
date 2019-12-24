@@ -39,13 +39,11 @@ from ctypes import c_bool
 import copy
 import logging
 import os
-import subprocess as subp
 
 import gdxpds.gdx
 import gdxpds.special
 from gdxpds.test import base_dir, run_dir
 from gdxpds.test.test_session import manage_rundir
-from gdxpds.test.test_conversions import roundtrip_one_gdx
 
 import gdxcc
 import numpy as np
