@@ -265,6 +265,9 @@ class GdxFile(MutableSequence, NeedsGamsDir):
         self.filename = filename
 
         # write the universal set
+        # This package currently can't recalculate the universal set yet
+        # Therefore unload empty set
+        self.universal_set.dataframe = pds.DataFrame({"*": [], "Value": []})
         self.universal_set.write()
 
         for i, symbol in enumerate(self, start=1):
@@ -450,17 +453,12 @@ class GdxSymbol(object):
         self.file = file
         self.index = index
         self._loaded = False
-        if index == 0:
-            # Universal set is an empty set
-            dims = None
-            num_records = None
-            dataframe = pds.DataFrame({'*': [], 'Value': []})
 
         self._dataframe = None
         self._dims = None
         self._num_records = None
         if dataframe is not None:
-            # Writing symbol (or exogenously defined universal set)
+            # Writing symbol
             if dims is not None or num_records is not None:
                 raise ValueError("Do not pass both 'dataframe' and 'dims'/'num_records'")
             self.dataframe = dataframe
